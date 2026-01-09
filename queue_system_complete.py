@@ -2,7 +2,7 @@
 """
 Premium Queue System with Complete Features
 ============================================
-Version: 6.4.0 - Complete Edition with Enhanced Auto-Save
+Version: 6.5.0 - Complete Edition with Enhanced Auto-Save
 Author: Premium Queue System
 """
 
@@ -44,7 +44,7 @@ class Config:
     GS = b'\x1d'
     
     DEFAULT_SETTINGS = {
-        "version": "6.4.0",
+        "version": "6.5.0",
         "title": "Premium Queue System",
         "logo": os.path.join(ASSETS_DIR, "logo.png"),
         "company_name": "Your Company Name",
@@ -250,22 +250,22 @@ class Config:
             "window_height": 800,
             "design_mode": False,
             "widgets": {
-                "logo": {"x": 100, "y": 100, "visible": True},
-                "title": {"x": 500, "y": 120, "visible": True},
-                "company": {"x": 500, "y": 170, "visible": True},
-                "time": {"x": 500, "y": 220, "visible": True},
-                "number": {"x": 500, "y": 350, "visible": True},
-                "number_label": {"x": 500, "y": 450, "visible": True},
-                "prev_button": {"x": 100, "y": 500, "visible": True},
-                "print_button": {"x": 300, "y": 500, "visible": True},
-                "next_button": {"x": 500, "y": 500, "visible": True},
-                "settings_button": {"x": 700, "y": 500, "visible": True},
-                "reset_button": {"x": 700, "y": 570, "visible": True},
-                "stats": {"x": 500, "y": 650, "visible": True},
-                "instructions": {"x": 500, "y": 700, "visible": True},
-                "designer_button": {"x": 500, "y": 580, "visible": True},
-                "preview_button": {"x": 700, "y": 630, "visible": True},
-                "save_design_button": {"x": 300, "y": 580, "visible": True}
+                "logo": {"x": 100, "y": 100, "visible": True, "width": 150, "height": 100},
+                "title": {"x": 500, "y": 120, "visible": True, "width": 300, "height": 40},
+                "company": {"x": 500, "y": 170, "visible": True, "width": 300, "height": 30},
+                "time": {"x": 500, "y": 220, "visible": True, "width": 300, "height": 25},
+                "number": {"x": 500, "y": 350, "visible": True, "width": 300, "height": 300},
+                "number_label": {"x": 500, "y": 450, "visible": True, "width": 200, "height": 30},
+                "prev_button": {"x": 100, "y": 500, "visible": True, "width": 200, "height": 70},
+                "print_button": {"x": 300, "y": 500, "visible": True, "width": 250, "height": 70},
+                "next_button": {"x": 500, "y": 500, "visible": True, "width": 200, "height": 70},
+                "settings_button": {"x": 700, "y": 500, "visible": True, "width": 200, "height": 60},
+                "reset_button": {"x": 700, "y": 570, "visible": True, "width": 180, "height": 55},
+                "stats": {"x": 500, "y": 650, "visible": True, "width": 400, "height": 50},
+                "instructions": {"x": 500, "y": 700, "visible": True, "width": 500, "height": 30},
+                "designer_button": {"x": 500, "y": 580, "visible": True, "width": 220, "height": 60},
+                "preview_button": {"x": 700, "y": 630, "visible": True, "width": 200, "height": 55},
+                "save_design_button": {"x": 300, "y": 580, "visible": True, "width": 200, "height": 55}
             }
         },
         
@@ -943,7 +943,7 @@ class TicketDesigner:
         main_container.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Left panel - Controls
-        left_panel = tk.Frame(main_container, width=350, bg="#ffffff", relief="solid", bd=1)
+        left_panel = tk.Frame(main_container, width=400, bg="#ffffff", relief="solid", bd=1)
         left_panel.pack(side="left", fill="y", padx=(0, 10))
         left_panel.pack_propagate(False)
         
@@ -971,22 +971,22 @@ class TicketDesigner:
         
         tk.Label(logo_frame, text="Logo Width:", bg="#ffffff").pack(anchor="w", pady=2)
         self.logo_width_var = tk.IntVar(value=self.ticket_design.get("logo_width", 150))
-        tk.Scale(logo_frame, from_=50, to=300, variable=self.logo_width_var,
-                orient="horizontal", length=200, command=lambda x: self.update_logo_size(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(logo_frame, textvariable=self.logo_width_var, width=10).pack(side="left", padx=5)
+        tk.Button(logo_frame, text="Apply", command=self.update_logo_size,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         tk.Label(logo_frame, text="Logo Height:", bg="#ffffff").pack(anchor="w", pady=2)
         self.logo_height_var = tk.IntVar(value=self.ticket_design.get("logo_height", 100))
-        tk.Scale(logo_frame, from_=30, to=200, variable=self.logo_height_var,
-                orient="horizontal", length=200, command=lambda x: self.update_logo_size(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(logo_frame, textvariable=self.logo_height_var, width=10).pack(side="left", padx=5)
+        tk.Button(logo_frame, text="Apply", command=self.update_logo_size,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         # Logo opacity control
-        tk.Label(logo_frame, text="Logo Opacity:", bg="#ffffff").pack(anchor="w", pady=2)
-        self.logo_opacity_var = tk.DoubleVar(value=self.ticket_design.get("logo_opacity", 1.0))
-        tk.Scale(logo_frame, from_=0.1, to=1.0, resolution=0.1, variable=self.logo_opacity_var,
-                orient="horizontal", length=200, command=self.update_logo_opacity,
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Label(logo_frame, text="Logo Opacity (0-100):", bg="#ffffff").pack(anchor="w", pady=2)
+        self.logo_opacity_var = tk.DoubleVar(value=self.ticket_design.get("logo_opacity", 1.0) * 100)
+        tk.Entry(logo_frame, textvariable=self.logo_opacity_var, width=10).pack(side="left", padx=5)
+        tk.Button(logo_frame, text="Apply", command=self.update_logo_opacity,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         # Company info controls
         company_frame = tk.LabelFrame(left_panel, text="Company Info", font=("Arial", 12, "bold"),
@@ -999,9 +999,9 @@ class TicketDesigner:
         
         tk.Label(company_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
         self.company_font_var = tk.IntVar(value=self.ticket_design.get("company_font_size", 18))
-        tk.Scale(company_frame, from_=8, to=36, variable=self.company_font_var,
-                orient="horizontal", length=200, command=lambda x: self.update_font_sizes(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(company_frame, textvariable=self.company_font_var, width=10).pack(side="left", padx=5)
+        tk.Button(company_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         # Ticket number controls
         number_frame = tk.LabelFrame(left_panel, text="Ticket Number", font=("Arial", 12, "bold"),
@@ -1010,13 +1010,13 @@ class TicketDesigner:
         
         tk.Label(number_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
         self.number_size_var = tk.IntVar(value=self.ticket_design.get("number_size", 72))
-        tk.Scale(number_frame, from_=24, to=120, variable=self.number_size_var,
-                orient="horizontal", length=200, command=lambda x: self.update_font_sizes(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(number_frame, textvariable=self.number_size_var, width=10).pack(side="left", padx=5)
+        tk.Button(number_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         tk.Label(number_frame, text="Prefix:", bg="#ffffff").pack(anchor="w", pady=2)
         self.number_prefix_var = tk.StringVar(value=self.ticket_design.get("number_prefix", "Ticket #"))
-        tk.Entry(number_frame, textvariable=self.number_prefix_var, width=20,
+        tk.Entry(number_frame, textvariable=self.number_prefix_var, width=15,
                 font=("Arial", 10)).pack(fill="x", pady=2)
         
         # Messages controls
@@ -1031,9 +1031,9 @@ class TicketDesigner:
         
         tk.Label(messages_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
         self.thank_font_var = tk.IntVar(value=self.ticket_design.get("thank_font_size", 14))
-        tk.Scale(messages_frame, from_=8, to=24, variable=self.thank_font_var,
-                orient="horizontal", length=200, command=lambda x: self.update_font_sizes(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(messages_frame, textvariable=self.thank_font_var, width=10).pack(side="left", padx=5)
+        tk.Button(messages_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         tk.Label(messages_frame, text="Warning Message:", bg="#ffffff").pack(anchor="w", pady=2)
         self.warning_var = tk.StringVar(value=self.ticket_design.get("warning_message", "Please wait in the waiting area"))
@@ -1042,9 +1042,9 @@ class TicketDesigner:
         
         tk.Label(messages_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
         self.warning_font_var = tk.IntVar(value=self.ticket_design.get("warning_font_size", 12))
-        tk.Scale(messages_frame, from_=8, to=20, variable=self.warning_font_var,
-                orient="horizontal", length=200, command=lambda x: self.update_font_sizes(),
-                bg="#ffffff").pack(fill="x", pady=2)
+        tk.Entry(messages_frame, textvariable=self.warning_font_var, width=10).pack(side="left", padx=5)
+        tk.Button(messages_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         # Date & Time controls
         datetime_frame = tk.LabelFrame(left_panel, text="Date & Time", font=("Arial", 12, "bold"),
@@ -1058,6 +1058,42 @@ class TicketDesigner:
         self.show_time_var = tk.BooleanVar(value=self.ticket_design.get("show_time", True))
         tk.Checkbutton(datetime_frame, text="Show Time", variable=self.show_time_var,
                       bg="#ffffff", command=self.update_datetime_visibility).pack(anchor="w")
+        
+        # Custom Message
+        custom_frame = tk.LabelFrame(left_panel, text="Custom Message", font=("Arial", 12, "bold"),
+                                    bg="#ffffff", fg="#333333", padx=10, pady=10)
+        custom_frame.pack(fill="x", padx=10, pady=5)
+        
+        tk.Label(custom_frame, text="Custom Message:", bg="#ffffff").pack(anchor="w", pady=2)
+        self.custom_var = tk.StringVar(value=self.ticket_design.get("custom_message", "We appreciate your patience"))
+        tk.Entry(custom_frame, textvariable=self.custom_var, width=25,
+                font=("Arial", 10)).pack(fill="x", pady=2)
+        
+        tk.Label(custom_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
+        self.custom_font_var = tk.IntVar(value=self.ticket_design.get("message_font_size", 12))
+        tk.Entry(custom_frame, textvariable=self.custom_font_var, width=10).pack(side="left", padx=5)
+        tk.Button(custom_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
+        
+        # Watermark
+        watermark_frame = tk.LabelFrame(left_panel, text="Watermark", font=("Arial", 12, "bold"),
+                                       bg="#ffffff", fg="#333333", padx=10, pady=10)
+        watermark_frame.pack(fill="x", padx=10, pady=5)
+        
+        self.watermark_var = tk.BooleanVar(value=self.ticket_design.get("watermark", True))
+        tk.Checkbutton(watermark_frame, text="Show Watermark", variable=self.watermark_var,
+                      bg="#ffffff", command=self.update_watermark_visibility).pack(anchor="w")
+        
+        tk.Label(watermark_frame, text="Watermark Text:", bg="#ffffff").pack(anchor="w", pady=2)
+        self.watermark_text_var = tk.StringVar(value=self.ticket_design.get("watermark_text", "OFFICIAL TICKET"))
+        tk.Entry(watermark_frame, textvariable=self.watermark_text_var, width=20,
+                font=("Arial", 10)).pack(fill="x", pady=2)
+        
+        tk.Label(watermark_frame, text="Font Size:", bg="#ffffff").pack(anchor="w", pady=2)
+        self.watermark_font_var = tk.IntVar(value=self.ticket_design.get("watermark_font_size", 10))
+        tk.Entry(watermark_frame, textvariable=self.watermark_font_var, width=10).pack(side="left", padx=5)
+        tk.Button(watermark_frame, text="Apply", command=self.update_font_sizes,
+                 bg="#95A5A6", fg="white", font=("Arial", 8)).pack(side="left", padx=5)
         
         # Design Management
         management_frame = tk.LabelFrame(left_panel, text="Design Management", 
@@ -1291,6 +1327,16 @@ class TicketDesigner:
         )
         self.make_draggable(self.warning_label, "warning")
         
+        # Custom message
+        self.custom_label = tk.Label(
+            self.ticket_frame,
+            text=self.ticket_design.get("custom_message", "We appreciate your patience"),
+            font=("Arial", self.ticket_design.get("message_font_size", 12)),
+            bg="white",
+            fg="black"
+        )
+        self.make_draggable(self.custom_label, "custom")
+        
         # Date
         self.date_label = tk.Label(
             self.ticket_frame,
@@ -1371,6 +1417,7 @@ class TicketDesigner:
             "number": self.number_label,
             "thank": self.thank_label,
             "warning": self.warning_label,
+            "custom": self.custom_label,
             "date": self.date_label,
             "time": self.time_label,
             "watermark": self.watermark_label
@@ -1484,9 +1531,9 @@ class TicketDesigner:
         else:
             self.logo_label.place_forget()
     
-    def update_logo_opacity(self, value):
+    def update_logo_opacity(self):
         """Update logo opacity"""
-        opacity = float(value)
+        opacity = self.logo_opacity_var.get() / 100.0
         self.ticket_design["logo_opacity"] = opacity
         self.load_ticket_logo()
             
@@ -1542,6 +1589,14 @@ class TicketDesigner:
         self.warning_label.config(font=("Arial", self.warning_font_var.get()))
         self.warning_label.config(text=self.warning_var.get())
         
+        # Custom message
+        self.custom_label.config(font=("Arial", self.custom_font_var.get()))
+        self.custom_label.config(text=self.custom_var.get())
+        
+        # Watermark
+        self.watermark_label.config(font=("Arial", self.watermark_font_var.get()))
+        self.watermark_label.config(text=self.watermark_text_var.get())
+        
         # Update prefix
         self.prefix_label.config(text=self.number_prefix_var.get())
         
@@ -1550,8 +1605,12 @@ class TicketDesigner:
         self.ticket_design["number_size"] = self.number_size_var.get()
         self.ticket_design["thank_font_size"] = self.thank_font_var.get()
         self.ticket_design["warning_font_size"] = self.warning_font_var.get()
+        self.ticket_design["message_font_size"] = self.custom_font_var.get()
+        self.ticket_design["watermark_font_size"] = self.watermark_font_var.get()
         self.ticket_design["thank_message"] = self.thank_var.get()
         self.ticket_design["warning_message"] = self.warning_var.get()
+        self.ticket_design["custom_message"] = self.custom_var.get()
+        self.ticket_design["watermark_text"] = self.watermark_text_var.get()
         self.ticket_design["number_prefix"] = self.number_prefix_var.get()
         
     def update_datetime_visibility(self):
@@ -1570,6 +1629,17 @@ class TicketDesigner:
             
         self.ticket_design["show_date"] = self.show_date_var.get()
         self.ticket_design["show_time"] = self.show_time_var.get()
+        
+    def update_watermark_visibility(self):
+        """Update watermark visibility"""
+        if self.watermark_var.get():
+            x = self.ticket_design.get("watermark_position_x", 200)
+            y = self.ticket_design.get("watermark_position_y", 500)
+            self.watermark_label.place(x=x, y=y)
+        else:
+            self.watermark_label.place_forget()
+        
+        self.ticket_design["watermark"] = self.watermark_var.get()
         
     def draw_ticket_border(self):
         """Draw ticket border on canvas"""
@@ -1639,7 +1709,7 @@ class TicketDesigner:
         self.ticket_design["show_logo"] = self.show_logo_var.get()
         self.ticket_design["logo_width"] = self.logo_width_var.get()
         self.ticket_design["logo_height"] = self.logo_height_var.get()
-        self.ticket_design["logo_opacity"] = self.logo_opacity_var.get()
+        self.ticket_design["logo_opacity"] = self.logo_opacity_var.get() / 100.0
         self.ticket_design["company_info"] = self.show_company_var.get()
         self.ticket_design["company_font_size"] = self.company_font_var.get()
         self.ticket_design["number_size"] = self.number_size_var.get()
@@ -1648,8 +1718,13 @@ class TicketDesigner:
         self.ticket_design["thank_font_size"] = self.thank_font_var.get()
         self.ticket_design["warning_message"] = self.warning_var.get()
         self.ticket_design["warning_font_size"] = self.warning_font_var.get()
+        self.ticket_design["custom_message"] = self.custom_var.get()
+        self.ticket_design["message_font_size"] = self.custom_font_var.get()
         self.ticket_design["show_date"] = self.show_date_var.get()
         self.ticket_design["show_time"] = self.show_time_var.get()
+        self.ticket_design["watermark"] = self.watermark_var.get()
+        self.ticket_design["watermark_text"] = self.watermark_text_var.get()
+        self.ticket_design["watermark_font_size"] = self.watermark_font_var.get()
         self.ticket_design["design_name"] = self.designs_dropdown.get() if self.designs_dropdown.get() else "custom"
         self.ticket_design["design_timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
@@ -1669,7 +1744,7 @@ class TicketDesigner:
             self.show_logo_var.set(self.ticket_design.get("show_logo", True))
             self.logo_width_var.set(self.ticket_design.get("logo_width", 150))
             self.logo_height_var.set(self.ticket_design.get("logo_height", 100))
-            self.logo_opacity_var.set(self.ticket_design.get("logo_opacity", 1.0))
+            self.logo_opacity_var.set(self.ticket_design.get("logo_opacity", 1.0) * 100)
             self.show_company_var.set(self.ticket_design.get("company_info", True))
             self.company_font_var.set(self.ticket_design.get("company_font_size", 18))
             self.number_size_var.set(self.ticket_design.get("number_size", 72))
@@ -1678,12 +1753,18 @@ class TicketDesigner:
             self.thank_font_var.set(self.ticket_design.get("thank_font_size", 14))
             self.warning_var.set(self.ticket_design.get("warning_message", ""))
             self.warning_font_var.set(self.ticket_design.get("warning_font_size", 12))
+            self.custom_var.set(self.ticket_design.get("custom_message", ""))
+            self.custom_font_var.set(self.ticket_design.get("message_font_size", 12))
             self.show_date_var.set(self.ticket_design.get("show_date", True))
             self.show_time_var.set(self.ticket_design.get("show_time", True))
+            self.watermark_var.set(self.ticket_design.get("watermark", True))
+            self.watermark_text_var.set(self.ticket_design.get("watermark_text", ""))
+            self.watermark_font_var.set(self.ticket_design.get("watermark_font_size", 10))
             
             # تحديث العناصر
             self.update_logo_size()
             self.update_font_sizes()
+            self.update_watermark_visibility()
             
             # وضع العناصر في مواقعهم المحفوظة
             if "elements" in design_data:
@@ -1744,9 +1825,10 @@ class TicketDesigner:
                 "number": (50, 180),
                 "thank": (50, 280),
                 "warning": (50, 320),
-                "date": (50, 370),
-                "time": (50, 400),
-                "watermark": (200, 500)
+                "custom": (50, 360),
+                "date": (50, 420),
+                "time": (50, 450),
+                "watermark": (200, 550)
             }
             
             for widget in self.ticket_frame.winfo_children():
@@ -1882,6 +1964,270 @@ class DragDropManager:
                 # Auto-save
                 self.app.save_current_state()
                 self.app.data_manager.logger.info(f"Saved position for {widget_name}: ({x}, {y})")
+
+# ======================= Interactive UI Layout Designer =======================
+class UILayoutDesigner:
+    """Interactive UI layout designer with real-time preview"""
+    
+    def __init__(self, parent_window, app):
+        self.parent_window = parent_window
+        self.app = app
+        
+        # Create designer window
+        self.window = tk.Toplevel(parent_window)
+        self.window.title("UI Layout Designer - Premium Queue System")
+        self.window.geometry("1200x800")
+        self.window.configure(bg="#f0f0f0")
+        
+        # Bind close event
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Create main container
+        main_container = tk.Frame(self.window, bg="#f0f0f0")
+        main_container.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Left panel - Preview
+        left_panel = tk.Frame(main_container, width=800, bg="#ffffff", relief="solid", bd=1)
+        left_panel.pack(side="left", fill="both", expand=True, padx=(0, 10))
+        left_panel.pack_propagate(False)
+        
+        # Right panel - Controls
+        right_panel = tk.Frame(main_container, width=350, bg="#ffffff", relief="solid", bd=1)
+        right_panel.pack(side="right", fill="y")
+        right_panel.pack_propagate(False)
+        
+        # ========== LEFT PANEL - PREVIEW ==========
+        tk.Label(left_panel, text="UI Layout Preview", font=("Arial", 16, "bold"), 
+                bg="#ffffff", fg="#333333").pack(pady=20)
+        
+        # Create preview frame with the same background as main window
+        preview_frame = tk.Frame(left_panel, bg=self.app.settings["main_window"]["bg_color"])
+        preview_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # Create a canvas for the preview
+        self.preview_canvas = tk.Canvas(preview_frame, 
+                                        width=750, 
+                                        height=600,
+                                        bg=self.app.settings["main_window"]["bg_color"],
+                                        highlightthickness=0)
+        self.preview_canvas.pack(pady=10)
+        
+        # Draw the preview
+        self.draw_preview()
+        
+        # ========== RIGHT PANEL - CONTROLS ==========
+        tk.Label(right_panel, text="Widget Controls", font=("Arial", 16, "bold"), 
+                bg="#ffffff", fg="#333333").pack(pady=20)
+        
+        # Create scrollable frame for controls
+        control_canvas = tk.Canvas(right_panel, bg="#ffffff", highlightthickness=0)
+        scrollbar = tk.Scrollbar(right_panel, orient="vertical", command=control_canvas.yview)
+        self.scrollable_frame = tk.Frame(control_canvas, bg="#ffffff")
+        
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: control_canvas.configure(scrollregion=control_canvas.bbox("all"))
+        )
+        
+        control_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        control_canvas.configure(yscrollcommand=scrollbar.set)
+        
+        scrollbar.pack(side="right", fill="y")
+        control_canvas.pack(side="left", fill="both", expand=True)
+        
+        # Create controls for each widget
+        self.create_widget_controls()
+        
+        # Action buttons
+        action_frame = tk.Frame(right_panel, bg="#ffffff")
+        action_frame.pack(side="bottom", fill="x", padx=10, pady=20)
+        
+        tk.Button(action_frame, text="💾 Save Layout", command=self.save_layout,
+                 bg="#27AE60", fg="white", font=("Arial", 12, "bold"),
+                 height=2).pack(fill="x", pady=5)
+        
+        tk.Button(action_frame, text="🔄 Reset Layout", command=self.reset_layout,
+                 bg="#E67E22", fg="white", font=("Arial", 11)).pack(fill="x", pady=5)
+        
+        tk.Button(action_frame, text="❌ Close", command=self.on_closing,
+                 bg="#E74C3C", fg="white", font=("Arial", 11)).pack(fill="x", pady=5)
+    
+    def draw_preview(self):
+        """Draw the UI preview"""
+        # Clear canvas
+        self.preview_canvas.delete("all")
+        
+        settings = self.app.settings
+        widgets_config = settings["ui_layout"]["widgets"]
+        
+        # Draw each widget
+        for widget_name, config in widgets_config.items():
+            if config.get("visible", True):
+                x = config.get("x", 0)
+                y = config.get("y", 0)
+                width = config.get("width", 100)
+                height = config.get("height", 40)
+                
+                # Different colors for different widget types
+                if "button" in widget_name:
+                    fill_color = "#4CAF50"
+                    text_color = "white"
+                elif widget_name in ["logo", "title", "company", "time", "number"]:
+                    fill_color = "#2196F3"
+                    text_color = "white"
+                else:
+                    fill_color = "#9C27B0"
+                    text_color = "white"
+                
+                # Draw widget rectangle
+                self.preview_canvas.create_rectangle(
+                    x, y, x + width, y + height,
+                    fill=fill_color,
+                    outline="#333333",
+                    width=2
+                )
+                
+                # Draw widget name
+                self.preview_canvas.create_text(
+                    x + width/2, y + height/2,
+                    text=widget_name.replace("_", " ").title(),
+                    fill=text_color,
+                    font=("Arial", 10)
+                )
+                
+                # Draw dimensions text
+                self.preview_canvas.create_text(
+                    x + width/2, y + height + 10,
+                    text=f"{width}x{height}",
+                    fill="#666666",
+                    font=("Arial", 8)
+                )
+    
+    def create_widget_controls(self):
+        """Create controls for each widget"""
+        widgets_config = self.app.settings["ui_layout"]["widgets"]
+        
+        for widget_name, config in widgets_config.items():
+            widget_frame = tk.LabelFrame(self.scrollable_frame, 
+                                        text=widget_name.replace("_", " ").title(),
+                                        font=("Arial", 12, "bold"),
+                                        bg="#ffffff", fg="#333333",
+                                        padx=10, pady=10)
+            widget_frame.pack(fill="x", padx=10, pady=5)
+            
+            # Visibility checkbox
+            visibility_var = tk.BooleanVar(value=config.get("visible", True))
+            tk.Checkbutton(widget_frame, text="Visible", variable=visibility_var,
+                          bg="#ffffff", font=("Arial", 10),
+                          command=lambda wn=widget_name, vv=visibility_var: self.update_widget_visibility(wn, vv)).pack(anchor="w", pady=2)
+            
+            # Position controls
+            pos_frame = tk.Frame(widget_frame, bg="#ffffff")
+            pos_frame.pack(fill="x", pady=5)
+            
+            tk.Label(pos_frame, text="X:", bg="#ffffff", font=("Arial", 10)).pack(side="left")
+            x_var = tk.IntVar(value=config.get("x", 0))
+            x_spin = tk.Spinbox(pos_frame, from_=0, to=800, textvariable=x_var, 
+                               width=6, font=("Arial", 10))
+            x_spin.pack(side="left", padx=5)
+            
+            tk.Label(pos_frame, text="Y:", bg="#ffffff", font=("Arial", 10)).pack(side="left", padx=(10, 0))
+            y_var = tk.IntVar(value=config.get("y", 0))
+            y_spin = tk.Spinbox(pos_frame, from_=0, to=600, textvariable=y_var, 
+                               width=6, font=("Arial", 10))
+            y_spin.pack(side="left", padx=5)
+            
+            # Size controls
+            size_frame = tk.Frame(widget_frame, bg="#ffffff")
+            size_frame.pack(fill="x", pady=5)
+            
+            tk.Label(size_frame, text="Width:", bg="#ffffff", font=("Arial", 10)).pack(side="left")
+            width_var = tk.IntVar(value=config.get("width", 100))
+            width_spin = tk.Spinbox(size_frame, from_=50, to=500, textvariable=width_var, 
+                                   width=6, font=("Arial", 10))
+            width_spin.pack(side="left", padx=5)
+            
+            tk.Label(size_frame, text="Height:", bg="#ffffff", font=("Arial", 10)).pack(side="left", padx=(10, 0))
+            height_var = tk.IntVar(value=config.get("height", 40))
+            height_spin = tk.Spinbox(size_frame, from_=20, to=300, textvariable=height_var, 
+                                    width=6, font=("Arial", 10))
+            height_spin.pack(side="left", padx=5)
+            
+            # Update button
+            def create_update_func(wn, xv, yv, wv, hv):
+                return lambda: self.update_widget_position_size(wn, xv.get(), yv.get(), wv.get(), hv.get())
+            
+            update_btn = tk.Button(widget_frame, text="Update", 
+                                  command=create_update_func(widget_name, x_var, y_var, width_var, height_var),
+                                  bg="#3498DB", fg="white", font=("Arial", 9))
+            update_btn.pack(pady=2)
+            
+            # Store variables for later use
+            if not hasattr(self, 'widget_vars'):
+                self.widget_vars = {}
+            self.widget_vars[widget_name] = {
+                'visibility': visibility_var,
+                'x': x_var,
+                'y': y_var,
+                'width': width_var,
+                'height': height_var
+            }
+    
+    def update_widget_visibility(self, widget_name, visibility_var):
+        """Update widget visibility"""
+        self.app.settings["ui_layout"]["widgets"][widget_name]["visible"] = visibility_var.get()
+        self.draw_preview()
+    
+    def update_widget_position_size(self, widget_name, x, y, width, height):
+        """Update widget position and size"""
+        self.app.settings["ui_layout"]["widgets"][widget_name]["x"] = x
+        self.app.settings["ui_layout"]["widgets"][widget_name]["y"] = y
+        self.app.settings["ui_layout"]["widgets"][widget_name]["width"] = width
+        self.app.settings["ui_layout"]["widgets"][widget_name]["height"] = height
+        self.draw_preview()
+    
+    def save_layout(self):
+        """Save the layout to settings"""
+        # Update all widget settings from UI
+        for widget_name, vars_dict in self.widget_vars.items():
+            config = self.app.settings["ui_layout"]["widgets"][widget_name]
+            config["visible"] = vars_dict['visibility'].get()
+            config["x"] = vars_dict['x'].get()
+            config["y"] = vars_dict['y'].get()
+            config["width"] = vars_dict['width'].get()
+            config["height"] = vars_dict['height'].get()
+        
+        # Save settings
+        self.app.data_manager.save_settings(self.app.settings)
+        
+        # Apply layout in main app
+        self.app.apply_layout()
+        
+        messagebox.showinfo("Success", "UI layout saved successfully!")
+    
+    def reset_layout(self):
+        """Reset layout to defaults"""
+        if messagebox.askyesno("Reset Layout", "Reset all widgets to default positions and sizes?"):
+            # Reset to default settings
+            self.app.settings["ui_layout"]["widgets"] = Config.DEFAULT_SETTINGS["ui_layout"]["widgets"].copy()
+            
+            # Update UI controls
+            for widget_name, config in self.app.settings["ui_layout"]["widgets"].items():
+                if widget_name in self.widget_vars:
+                    self.widget_vars[widget_name]['visibility'].set(config.get("visible", True))
+                    self.widget_vars[widget_name]['x'].set(config.get("x", 0))
+                    self.widget_vars[widget_name]['y'].set(config.get("y", 0))
+                    self.widget_vars[widget_name]['width'].set(config.get("width", 100))
+                    self.widget_vars[widget_name]['height'].set(config.get("height", 40))
+            
+            # Redraw preview
+            self.draw_preview()
+            
+            messagebox.showinfo("Success", "Layout reset to defaults!")
+    
+    def on_closing(self):
+        """Handle window closing"""
+        self.window.destroy()
 
 # ======================= Main Application =======================
 class PremiumQueueSystem:
@@ -2380,40 +2726,26 @@ class PremiumQueueSystem:
                 widget = self.widgets[widget_name]
                 x = config.get("x", 0)
                 y = config.get("y", 0)
+                width = config.get("width", 100)
+                height = config.get("height", 40)
                 visible = config.get("visible", True)
                 
-                # Dynamic positioning based on window size
-                window_width = self.settings["ui_layout"]["window_width"]
-                window_height = self.settings["ui_layout"]["window_height"]
-                
-                # Adjust button positions for different screen sizes
-                if "button" in widget_name:
-                    # يمكنك إضافة منطق لضبط المواضع حسب حجم الشاشة
-                    pass
+                if isinstance(widget, ModernButton) and "button" in widget_name:
+                    # تحديث حجم الأزرار
+                    widget.config(width=width, height=height)
+                    widget.update_config(width=width, height=height)
+                elif isinstance(widget, tk.Canvas) and widget_name == "number":
+                    # Number canvas resizing
+                    if self.settings["main_window"]["number_shape"] == "circle":
+                        widget.config(width=width, height=height)
+                    else:
+                        widget.config(width=width, height=height)
+                elif isinstance(widget, tk.Label):
+                    # Label widgets
+                    widget.config(wraplength=width)
                 
                 if visible:
-                    widget.place(x=x, y=y)
-                    
-                    # إعادة إنشاء الأزرار إذا تغير حجمها
-                    if isinstance(widget, ModernButton) and "button" in widget_name:
-                        main_settings = self.settings["main_window"]
-                        
-                        if widget_name == "print_button":
-                            width = main_settings.get("print_button_width", 200)
-                            height = main_settings.get("print_button_height", 60)
-                            widget.config(width=width, height=height)
-                        elif widget_name in ["prev_button", "next_button"]:
-                            width = main_settings.get("nav_button_width", 160)
-                            height = main_settings.get("nav_button_height", 60)
-                            widget.config(width=width, height=height)
-                        elif widget_name == "settings_button":
-                            width = main_settings.get("settings_button_width", 160)
-                            height = main_settings.get("settings_button_height", 50)
-                            widget.config(width=width, height=height)
-                        elif widget_name == "save_design_button":
-                            width = main_settings.get("save_design_button_width", 200)
-                            height = main_settings.get("save_design_button_height", 55)
-                            widget.config(width=width, height=height)
+                    widget.place(x=x, y=y, width=width, height=height if not isinstance(widget, ModernButton) else None)
                 else:
                     widget.place_forget()
     
@@ -2480,67 +2812,115 @@ class PremiumQueueSystem:
             messagebox.showerror("Error", "Failed to print. Please check printer settings.")
     
     def preview_ticket(self):
-        """Preview ticket"""
-        from tkinter import scrolledtext
-        
+        """Preview ticket with visual design"""
         preview_win = tk.Toplevel(self.root)
-        preview_win.title("Ticket Preview")
+        preview_win.title("Ticket Preview - Visual Design")
         preview_win.geometry("600x700")
+        preview_win.configure(bg="white")
         
-        # Create text widget for preview
-        text_widget = scrolledtext.ScrolledText(preview_win, wrap=tk.WORD, 
-                                               font=("Courier", 10), width=70, height=40)
-        text_widget.pack(padx=10, pady=10)
+        # Create frame for ticket
+        ticket_frame = tk.Frame(preview_win, bg="white", width=550, height=650)
+        ticket_frame.pack_propagate(False)
+        ticket_frame.pack(pady=20)
         
-        # Generate preview text
-        preview_text = self.generate_ticket_preview()
-        text_widget.insert(tk.END, preview_text)
-        text_widget.config(state=tk.DISABLED)
+        # Draw border
+        border_frame = tk.Frame(ticket_frame, bg="black", width=554, height=654)
+        border_frame.place(x=-2, y=-2)
+        
+        inner_frame = tk.Frame(ticket_frame, bg="white", width=550, height=650)
+        inner_frame.place(x=0, y=0)
+        
+        design = self.settings["ticket_design"]
+        
+        # Display logo if enabled
+        if design.get("show_logo", True) and os.path.exists(self.settings["logo"]):
+            try:
+                img = Image.open(self.settings["logo"])
+                width = design.get("logo_width", 150)
+                height = design.get("logo_height", 100)
+                img = img.resize((width, height), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(img)
+                logo_label = tk.Label(inner_frame, image=photo, bg="white")
+                logo_label.image = photo
+                logo_label.place(x=design.get("logo_position_x", 50), 
+                                y=design.get("logo_position_y", 50))
+            except:
+                pass
+        
+        # Display company info if enabled
+        if design.get("company_info", True):
+            company_font = ("Arial", design.get("company_font_size", 18))
+            company_label = tk.Label(inner_frame, text=self.settings["company_name"],
+                                    font=company_font, bg="white", fg="black")
+            company_label.place(x=design.get("company_position_x", 200),
+                              y=design.get("company_position_y", 50))
+            
+            address_label = tk.Label(inner_frame, text=self.settings["company_address"],
+                                    font=("Arial", 12), bg="white", fg="black")
+            address_label.place(x=design.get("company_position_x", 200),
+                               y=design.get("company_position_y", 80))
+        
+        # Ticket number
+        prefix_label = tk.Label(inner_frame, text=design.get("number_prefix", "Ticket #"),
+                               font=("Arial", 14), bg="white", fg="black")
+        prefix_label.place(x=design.get("number_position_x", 50),
+                          y=design.get("number_position_y", 150))
+        
+        number_label = tk.Label(inner_frame, text=f"{self.current_number:04d}",
+                               font=("Arial", design.get("number_size", 72), "bold"),
+                               bg="white", fg="#FF5722")
+        number_label.place(x=design.get("number_position_x", 50),
+                          y=design.get("number_position_y", 180))
+        
+        # Messages
+        if design.get("thank_message"):
+            thank_label = tk.Label(inner_frame, text=design["thank_message"],
+                                  font=("Arial", design.get("thank_font_size", 14)),
+                                  bg="white", fg="black")
+            thank_label.place(x=design.get("thank_position_x", 50),
+                            y=design.get("thank_position_y", 280))
+        
+        if design.get("warning_message"):
+            warning_label = tk.Label(inner_frame, text=design["warning_message"],
+                                    font=("Arial", design.get("warning_font_size", 12)),
+                                    bg="white", fg="black")
+            warning_label.place(x=design.get("warning_position_x", 50),
+                              y=design.get("warning_position_y", 320))
+        
+        if design.get("custom_message"):
+            custom_label = tk.Label(inner_frame, text=design["custom_message"],
+                                   font=("Arial", design.get("message_font_size", 12)),
+                                   bg="white", fg="black")
+            custom_label.place(x=design.get("custom_position_x", 50),
+                             y=design.get("custom_position_y", 450))
+        
+        # Date and time
+        now = datetime.now()
+        if design.get("show_date", True):
+            date_label = tk.Label(inner_frame, 
+                                 text=f"Date: {now.strftime(design.get('date_format', '%Y-%m-%d'))}",
+                                 font=("Arial", 12), bg="white", fg="black")
+            date_label.place(x=design.get("date_position_x", 50),
+                            y=design.get("date_position_y", 370))
+        
+        if design.get("show_time", True):
+            time_label = tk.Label(inner_frame,
+                                 text=f"Time: {now.strftime(design.get('time_format', '%H:%M:%S'))}",
+                                 font=("Arial", 12), bg="white", fg="black")
+            time_label.place(x=design.get("time_position_x", 50),
+                            y=design.get("time_position_y", 400))
+        
+        # Watermark
+        if design.get("watermark", True) and design.get("watermark_text"):
+            watermark_label = tk.Label(inner_frame, text=design["watermark_text"],
+                                      font=("Arial", design.get("watermark_font_size", 10)),
+                                      bg="white", fg="#888888")
+            watermark_label.place(x=design.get("watermark_position_x", 200),
+                                 y=design.get("watermark_position_y", 500))
         
         # Close button
         tk.Button(preview_win, text="Close", command=preview_win.destroy,
                  bg="#E74C3C", fg="white", font=("Arial", 12)).pack(pady=10)
-    
-    def generate_ticket_preview(self):
-        """Generate ticket preview text"""
-        design = self.settings["ticket_design"]
-        now = datetime.now()
-        
-        preview = "=" * 50 + "\n"
-        preview += " " * 10 + "TICKET PREVIEW" + "\n"
-        preview += "=" * 50 + "\n\n"
-        
-        if design.get("company_info", True):
-            preview += self.settings.get("company_name", "") + "\n"
-            preview += self.settings.get("company_address", "") + "\n"
-            preview += self.settings.get("company_phone", "") + "\n\n"
-            preview += "-" * 50 + "\n\n"
-        
-        preview += design.get("number_prefix", "Ticket #") + "\n"
-        preview += f"{self.current_number:04d}\n\n"
-        
-        if design.get("show_date", True):
-            preview += f"Date: {now.strftime(design.get('date_format', '%Y-%m-%d'))}\n"
-        
-        if design.get("show_time", True):
-            preview += f"Time: {now.strftime(design.get('time_format', '%H:%M:%S'))}\n\n"
-        
-        if design.get("thank_message"):
-            preview += design["thank_message"] + "\n\n"
-        
-        if design.get("warning_message"):
-            preview += design["warning_message"] + "\n\n"
-        
-        if design.get("custom_message"):
-            preview += design["custom_message"] + "\n\n"
-        
-        if design.get("watermark", True) and design.get("watermark_text"):
-            preview += "-" * 50 + "\n"
-            preview += design["watermark_text"] + "\n"
-        
-        preview += "=" * 50 + "\n"
-        
-        return preview
     
     def save_current_design(self):
         """Save current ticket design from main window"""
@@ -3078,8 +3458,25 @@ class PremiumQueueSystem:
                       variable=design_mode_var, command=toggle_design_mode,
                       font=("Arial", 12)).pack(pady=10)
         
+        # Interactive UI Designer Button
+        tk.Label(ui_scrollable_frame, text="Interactive Designer:", 
+                font=("Arial", 14, "bold")).pack(pady=20)
+        
+        def open_ui_designer():
+            """Open interactive UI designer"""
+            designer = UILayoutDesigner(settings_win, self)
+        
+        tk.Button(ui_scrollable_frame, text="🎨 Open UI Layout Designer", 
+                 command=open_ui_designer,
+                 bg="#9B59B6", fg="white", font=("Arial", 12, "bold"),
+                 height=2, width=30).pack(pady=10)
+        
+        tk.Label(ui_scrollable_frame, 
+                text="Interactive designer allows you to:\n• Preview UI layout\n• Adjust widget positions\n• Resize widgets\n• Control visibility",
+                font=("Arial", 10), justify="left").pack(pady=10)
+        
         # Widget visibility controls
-        tk.Label(ui_scrollable_frame, text="Widget Visibility:", 
+        tk.Label(ui_scrollable_frame, text="Quick Visibility Controls:", 
                 font=("Arial", 14, "bold")).pack(pady=20)
         
         # Create visibility variables
@@ -3672,8 +4069,9 @@ class PremiumQueueSystem:
 if __name__ == "__main__":
     print("""
     ╔══════════════════════════════════════════════════════════╗
-    ║         Premium Queue System v6.4.0                      ║
+    ║         Premium Queue System v6.5.0                      ║
     ║         Complete Edition with Enhanced Auto-Save         ║
+    ║         and Interactive UI Designer                      ║
     ║         Starting...                                      ║
     ╚══════════════════════════════════════════════════════════╝
     """)

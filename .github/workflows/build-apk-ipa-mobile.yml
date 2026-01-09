@@ -6,11 +6,13 @@ on:
     branches:
       - master
       - main
+      - queue_system_complete
   # Runs on pull request events that target one of the below branches
   pull_request:
     branches:
       - master
       - main
+      - queue_system_complete
 
   # Allows you to run this workflow manually from the Actions tab of the repository
   workflow_dispatch:

@@ -108,8 +108,6 @@ class Config:
             "nav_button_height": 70,
             "prev_button_width": 200,
             "prev_button_height": 70,
-            "next_button_width": 200,
-            "next_button_height": 70,
             "prev_button_text": "⬅ Previous",
             "next_button_text": "Next ➡",
             "nav_button_font": "Arial",
@@ -242,7 +240,10 @@ class Config:
             "cut_after_print": True,
             "print_quality": "high",
             "darkness": 12,
-            "print_speed": 3
+            "print_speed": 3,
+            "align_center": True,
+            "bold_header": True,
+            "double_height": True
         },
         
         "ui_layout": {
@@ -721,9 +722,18 @@ class EnhancedPrinterService:
             # Print company info if enabled
             if ticket_design.get("company_info", True):
                 if settings.get("company_name"):
-                    ser.write(Config.ESC + b'!\x30')  # Double height and width
+                    if printer_settings.get("align_center", True):
+                        ser.write(Config.ESC + b'a\x01')  # Center align
+                    
+                    if printer_settings.get("bold_header", True):
+                        ser.write(Config.ESC + b'E\x01')  # Bold on
+                    
+                    if printer_settings.get("double_height", True):
+                        ser.write(Config.ESC + b'!\x30')  # Double height and width
+                    
                     ser.write(self.encode_text(settings["company_name"] + "\n", encoding))
                     ser.write(Config.ESC + b'!\x00')  # Normal text
+                    ser.write(Config.ESC + b'E\x00')  # Bold off
                 
                 if settings.get("company_address"):
                     ser.write(self.encode_text(settings["company_address"] + "\n", encoding))
@@ -1976,20 +1986,31 @@ class UILayoutDesigner:
         # Create designer window
         self.window = tk.Toplevel(parent_window)
         self.window.title("UI Layout Designer - Premium Queue System")
-        self.window.geometry("1200x800")
+        
+        # جعل النافذة بحجم الشاشة الكاملة
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        self.window.geometry(f"{screen_width}x{screen_height}+0+0")
+        self.window.attributes('-fullscreen', True)
+        
         self.window.configure(bg="#f0f0f0")
         
         # Bind close event
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Add exit fullscreen button
+        exit_button = tk.Button(self.window, text="❌ Exit Full Screen", 
+                               command=lambda: self.window.attributes('-fullscreen', False),
+                               bg="#E74C3C", fg="white", font=("Arial", 12))
+        exit_button.pack(side="top", anchor="ne", padx=10, pady=10)
         
         # Create main container
         main_container = tk.Frame(self.window, bg="#f0f0f0")
         main_container.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Left panel - Preview
-        left_panel = tk.Frame(main_container, width=800, bg="#ffffff", relief="solid", bd=1)
+        left_panel = tk.Frame(main_container, bg="#ffffff", relief="solid", bd=1)
         left_panel.pack(side="left", fill="both", expand=True, padx=(0, 10))
-        left_panel.pack_propagate(False)
         
         # Right panel - Controls
         right_panel = tk.Frame(main_container, width=350, bg="#ffffff", relief="solid", bd=1)
@@ -2006,11 +2027,9 @@ class UILayoutDesigner:
         
         # Create a canvas for the preview
         self.preview_canvas = tk.Canvas(preview_frame, 
-                                        width=750, 
-                                        height=600,
                                         bg=self.app.settings["main_window"]["bg_color"],
                                         highlightthickness=0)
-        self.preview_canvas.pack(pady=10)
+        self.preview_canvas.pack(fill="both", expand=True, pady=10)
         
         # Draw the preview
         self.draw_preview()
@@ -3032,12 +3051,24 @@ class PremiumQueueSystem:
         # Create settings window (full screen)
         settings_win = tk.Toplevel(self.root)
         settings_win.title("Settings - Complete Edition with Auto-Save")
-        settings_win.state('zoomed')  # Full screen
+        
+        # جعل النافذة بحجم الشاشة الكاملة
+        screen_width = settings_win.winfo_screenwidth()
+        screen_height = settings_win.winfo_screenheight()
+        settings_win.geometry(f"{screen_width}x{screen_height}+0+0")
+        settings_win.attributes('-fullscreen', True)
+        
         settings_win.configure(bg="#f0f0f0")
+        
+        # إضافة زر للخروج من وضع الشاشة الكاملة
+        exit_button = tk.Button(settings_win, text="❌ Exit Full Screen", 
+                               command=lambda: settings_win.attributes('-fullscreen', False),
+                               bg="#E74C3C", fg="white", font=("Arial", 12))
+        exit_button.pack(side="top", anchor="ne", padx=10, pady=10)
         
         # Create notebook with tabs
         notebook = ttk.Notebook(settings_win)
-        notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        notebook.pack(fill="both", expand=True, padx=10, pady=40)  # زيادة padding أعلى
         
         # ========== General Tab ==========
         general_tab = ttk.Frame(notebook)
@@ -3280,6 +3311,143 @@ class PremiumQueueSystem:
         settings_height_var = tk.IntVar(value=self.settings["main_window"]["settings_button_height"])
         tk.Scale(button_size_frame, from_=30, to=80, variable=settings_height_var,
                 orient="horizontal", length=200).pack(pady=2)
+        
+        # ========== Ticket Design Tab ==========
+        ticket_design_tab = ttk.Frame(notebook)
+        notebook.add(ticket_design_tab, text="Ticket Design")
+        
+        ticket_canvas = tk.Canvas(ticket_design_tab, bg="#ffffff")
+        ticket_scrollbar = tk.Scrollbar(ticket_design_tab, orient="vertical", command=ticket_canvas.yview)
+        ticket_scrollable_frame = ttk.Frame(ticket_canvas)
+        
+        ticket_scrollable_frame.bind(
+            "<Configure>",
+            lambda e: ticket_canvas.configure(scrollregion=ticket_canvas.bbox("all"))
+        )
+        
+        ticket_canvas.create_window((0, 0), window=ticket_scrollable_frame, anchor="nw")
+        ticket_canvas.configure(yscrollcommand=ticket_scrollbar.set)
+        
+        ticket_scrollbar.pack(side="right", fill="y")
+        ticket_canvas.pack(side="left", fill="both", expand=True)
+        
+        tk.Label(ticket_scrollable_frame, text="Ticket Design Settings", 
+                font=("Arial", 20, "bold")).pack(pady=20)
+        
+        # Logo settings
+        logo_frame = tk.LabelFrame(ticket_scrollable_frame, text="Logo Settings",
+                                  font=("Arial", 14, "bold"))
+        logo_frame.pack(fill="x", padx=10, pady=10)
+        
+        show_logo_var = tk.BooleanVar(value=self.settings["ticket_design"]["show_logo"])
+        tk.Checkbutton(logo_frame, text="Show Logo", variable=show_logo_var,
+                      font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        tk.Label(logo_frame, text="Logo Width:", font=("Arial", 12)).pack(pady=5)
+        ticket_logo_width_var = tk.IntVar(value=self.settings["ticket_design"]["logo_width"])
+        tk.Scale(logo_frame, from_=50, to=300, variable=ticket_logo_width_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        tk.Label(logo_frame, text="Logo Height:", font=("Arial", 12)).pack(pady=5)
+        ticket_logo_height_var = tk.IntVar(value=self.settings["ticket_design"]["logo_height"])
+        tk.Scale(logo_frame, from_=30, to=200, variable=ticket_logo_height_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Company info settings
+        company_frame = tk.LabelFrame(ticket_scrollable_frame, text="Company Info",
+                                     font=("Arial", 14, "bold"))
+        company_frame.pack(fill="x", padx=10, pady=10)
+        
+        show_company_var = tk.BooleanVar(value=self.settings["ticket_design"]["company_info"])
+        tk.Checkbutton(company_frame, text="Show Company Info", variable=show_company_var,
+                      font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        tk.Label(company_frame, text="Company Font Size:", font=("Arial", 12)).pack(pady=5)
+        company_font_size_var = tk.IntVar(value=self.settings["ticket_design"]["company_font_size"])
+        tk.Scale(company_frame, from_=10, to=30, variable=company_font_size_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Ticket number settings
+        number_frame = tk.LabelFrame(ticket_scrollable_frame, text="Ticket Number",
+                                    font=("Arial", 14, "bold"))
+        number_frame.pack(fill="x", padx=10, pady=10)
+        
+        tk.Label(number_frame, text="Number Prefix:", font=("Arial", 12)).pack(pady=5)
+        number_prefix_var = tk.StringVar(value=self.settings["ticket_design"]["number_prefix"])
+        tk.Entry(number_frame, textvariable=number_prefix_var, width=20,
+                font=("Arial", 12)).pack(pady=5)
+        
+        tk.Label(number_frame, text="Number Font Size:", font=("Arial", 12)).pack(pady=5)
+        ticket_number_size_var = tk.IntVar(value=self.settings["ticket_design"]["number_size"])
+        tk.Scale(number_frame, from_=30, to=100, variable=ticket_number_size_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Messages settings
+        messages_frame = tk.LabelFrame(ticket_scrollable_frame, text="Messages",
+                                      font=("Arial", 14, "bold"))
+        messages_frame.pack(fill="x", padx=10, pady=10)
+        
+        tk.Label(messages_frame, text="Thank You Message:", font=("Arial", 12)).pack(pady=5)
+        thank_var = tk.StringVar(value=self.settings["ticket_design"]["thank_message"])
+        tk.Entry(messages_frame, textvariable=thank_var, width=40,
+                font=("Arial", 12)).pack(pady=5)
+        
+        tk.Label(messages_frame, text="Thank You Font Size:", font=("Arial", 12)).pack(pady=5)
+        thank_font_size_var = tk.IntVar(value=self.settings["ticket_design"]["thank_font_size"])
+        tk.Scale(messages_frame, from_=8, to=20, variable=thank_font_size_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        tk.Label(messages_frame, text="Warning Message:", font=("Arial", 12)).pack(pady=5)
+        warning_var = tk.StringVar(value=self.settings["ticket_design"]["warning_message"])
+        tk.Entry(messages_frame, textvariable=warning_var, width=40,
+                font=("Arial", 12)).pack(pady=5)
+        
+        tk.Label(messages_frame, text="Warning Font Size:", font=("Arial", 12)).pack(pady=5)
+        warning_font_size_var = tk.IntVar(value=self.settings["ticket_design"]["warning_font_size"])
+        tk.Scale(messages_frame, from_=8, to=18, variable=warning_font_size_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        tk.Label(messages_frame, text="Custom Message:", font=("Arial", 12)).pack(pady=5)
+        custom_var = tk.StringVar(value=self.settings["ticket_design"]["custom_message"])
+        tk.Entry(messages_frame, textvariable=custom_var, width=40,
+                font=("Arial", 12)).pack(pady=5)
+        
+        tk.Label(messages_frame, text="Custom Font Size:", font=("Arial", 12)).pack(pady=5)
+        custom_font_size_var = tk.IntVar(value=self.settings["ticket_design"]["message_font_size"])
+        tk.Scale(messages_frame, from_=8, to=18, variable=custom_font_size_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Date & Time settings
+        datetime_frame = tk.LabelFrame(ticket_scrollable_frame, text="Date & Time",
+                                      font=("Arial", 14, "bold"))
+        datetime_frame.pack(fill="x", padx=10, pady=10)
+        
+        show_date_var = tk.BooleanVar(value=self.settings["ticket_design"]["show_date"])
+        tk.Checkbutton(datetime_frame, text="Show Date", variable=show_date_var,
+                      font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        show_time_var = tk.BooleanVar(value=self.settings["ticket_design"]["show_time"])
+        tk.Checkbutton(datetime_frame, text="Show Time", variable=show_time_var,
+                      font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        # Watermark settings
+        watermark_frame = tk.LabelFrame(ticket_scrollable_frame, text="Watermark",
+                                       font=("Arial", 14, "bold"))
+        watermark_frame.pack(fill="x", padx=10, pady=10)
+        
+        show_watermark_var = tk.BooleanVar(value=self.settings["ticket_design"]["watermark"])
+        tk.Checkbutton(watermark_frame, text="Show Watermark", variable=show_watermark_var,
+                      font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        tk.Label(watermark_frame, text="Watermark Text:", font=("Arial", 12)).pack(pady=5)
+        watermark_text_var = tk.StringVar(value=self.settings["ticket_design"]["watermark_text"])
+        tk.Entry(watermark_frame, textvariable=watermark_text_var, width=30,
+                font=("Arial", 12)).pack(pady=5)
+        
+        tk.Label(watermark_frame, text="Watermark Font Size:", font=("Arial", 12)).pack(pady=5)
+        watermark_font_size_var = tk.IntVar(value=self.settings["ticket_design"]["watermark_font_size"])
+        tk.Scale(watermark_frame, from_=6, to=15, variable=watermark_font_size_var,
+                orient="horizontal", length=200).pack(pady=5)
         
         # ========== Buttons Tab ==========
         buttons_tab = ttk.Frame(notebook)
@@ -3666,26 +3834,99 @@ class PremiumQueueSystem:
         printer_tab = ttk.Frame(notebook)
         notebook.add(printer_tab, text="Printer")
         
-        tk.Label(printer_tab, text="Printer Settings", font=("Arial", 20, "bold")).pack(pady=20)
+        printer_canvas = tk.Canvas(printer_tab, bg="#ffffff")
+        printer_scrollbar = tk.Scrollbar(printer_tab, orient="vertical", command=printer_canvas.yview)
+        printer_scrollable_frame = ttk.Frame(printer_canvas)
+        
+        printer_scrollable_frame.bind(
+            "<Configure>",
+            lambda e: printer_canvas.configure(scrollregion=printer_canvas.bbox("all"))
+        )
+        
+        printer_canvas.create_window((0, 0), window=printer_scrollable_frame, anchor="nw")
+        printer_canvas.configure(yscrollcommand=printer_scrollbar.set)
+        
+        printer_scrollbar.pack(side="right", fill="y")
+        printer_canvas.pack(side="left", fill="both", expand=True)
+        
+        tk.Label(printer_scrollable_frame, text="Printer Settings", font=("Arial", 20, "bold")).pack(pady=20)
+        
+        # Port selection
+        tk.Label(printer_scrollable_frame, text="Serial Port:", font=("Arial", 12)).pack(pady=5)
+        port_var = tk.StringVar(value=Config.SERIAL_PORT)
+        port_entry = tk.Entry(printer_scrollable_frame, textvariable=port_var,
+                             width=15, font=("Arial", 12))
+        port_entry.pack(pady=5)
+        
+        # Baud rate
+        tk.Label(printer_scrollable_frame, text="Baud Rate:", font=("Arial", 12)).pack(pady=5)
+        baud_var = tk.IntVar(value=Config.BAUD_RATE)
+        baud_combo = ttk.Combobox(printer_scrollable_frame, textvariable=baud_var,
+                                 values=[9600, 19200, 38400, 57600, 115200],
+                                 width=10, font=("Arial", 12))
+        baud_combo.pack(pady=5)
         
         # Encoding
-        tk.Label(printer_tab, text="Encoding:", font=("Arial", 12)).pack(pady=5)
+        tk.Label(printer_scrollable_frame, text="Encoding:", font=("Arial", 12)).pack(pady=5)
         encoding_var = tk.StringVar(value=self.settings["printer_settings"]["encoding"])
-        encoding_combo = ttk.Combobox(printer_tab, textvariable=encoding_var,
+        encoding_combo = ttk.Combobox(printer_scrollable_frame, textvariable=encoding_var,
                                      values=["cp437", "cp850", "cp852", "cp1256", "utf-8"],
                                      width=15, font=("Arial", 12))
         encoding_combo.pack(pady=5)
         
         # Paper width
-        tk.Label(printer_tab, text="Paper Width (chars):", font=("Arial", 12)).pack(pady=5)
+        tk.Label(printer_scrollable_frame, text="Paper Width (chars):", font=("Arial", 12)).pack(pady=5)
         paper_var = tk.IntVar(value=self.settings["printer_settings"]["paper_width"])
-        tk.Spinbox(printer_tab, from_=40, to=80, textvariable=paper_var, 
-                  width=10, font=("Arial", 12)).pack(pady=5)
+        tk.Scale(printer_scrollable_frame, from_=40, to=80, variable=paper_var,
+                orient="horizontal", length=200).pack(pady=5)
         
         # Cut after print
         cut_var = tk.BooleanVar(value=self.settings["printer_settings"]["cut_after_print"])
-        tk.Checkbutton(printer_tab, text="Cut paper after printing", 
+        tk.Checkbutton(printer_scrollable_frame, text="Cut paper after printing", 
                       variable=cut_var, font=("Arial", 12)).pack(pady=10)
+        
+        # Print quality
+        tk.Label(printer_scrollable_frame, text="Print Quality:", font=("Arial", 12)).pack(pady=5)
+        quality_var = tk.StringVar(value=self.settings["printer_settings"]["print_quality"])
+        quality_combo = ttk.Combobox(printer_scrollable_frame, textvariable=quality_var,
+                                    values=["low", "medium", "high"],
+                                    width=10, font=("Arial", 12))
+        quality_combo.pack(pady=5)
+        
+        # Darkness
+        tk.Label(printer_scrollable_frame, text="Print Darkness (1-15):", font=("Arial", 12)).pack(pady=5)
+        darkness_var = tk.IntVar(value=self.settings["printer_settings"]["darkness"])
+        tk.Scale(printer_scrollable_frame, from_=1, to=15, variable=darkness_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Print speed
+        tk.Label(printer_scrollable_frame, text="Print Speed (1-5):", font=("Arial", 12)).pack(pady=5)
+        speed_var = tk.IntVar(value=self.settings["printer_settings"]["print_speed"])
+        tk.Scale(printer_scrollable_frame, from_=1, to=5, variable=speed_var,
+                orient="horizontal", length=200).pack(pady=5)
+        
+        # Advanced printer options
+        advanced_frame = tk.LabelFrame(printer_scrollable_frame, text="Advanced Printer Options",
+                                      font=("Arial", 14, "bold"))
+        advanced_frame.pack(fill="x", padx=10, pady=10)
+        
+        align_center_var = tk.BooleanVar(value=self.settings["printer_settings"].get("align_center", True))
+        tk.Checkbutton(advanced_frame, text="Center align text", 
+                      variable=align_center_var, font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        bold_header_var = tk.BooleanVar(value=self.settings["printer_settings"].get("bold_header", True))
+        tk.Checkbutton(advanced_frame, text="Bold headers", 
+                      variable=bold_header_var, font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        double_height_var = tk.BooleanVar(value=self.settings["printer_settings"].get("double_height", True))
+        tk.Checkbutton(advanced_frame, text="Double height for headers", 
+                      variable=double_height_var, font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        # Test printer button
+        tk.Button(printer_scrollable_frame, text="🖨️ Test Printer Connection", 
+                 command=self.test_printer_connection,
+                 bg="#3498DB", fg="white", font=("Arial", 12),
+                 height=2, width=25).pack(pady=20)
         
         # ========== Ticket Designs Tab ==========
         designs_tab = ttk.Frame(notebook)
@@ -3821,6 +4062,26 @@ class PremiumQueueSystem:
             self.settings["main_window"]["save_design_button_text"] = save_design_text_var.get()
             self.settings["main_window"]["save_design_button_color"] = save_design_color_var.get()
             
+            # Ticket Design
+            self.settings["ticket_design"]["show_logo"] = show_logo_var.get()
+            self.settings["ticket_design"]["logo_width"] = ticket_logo_width_var.get()
+            self.settings["ticket_design"]["logo_height"] = ticket_logo_height_var.get()
+            self.settings["ticket_design"]["company_info"] = show_company_var.get()
+            self.settings["ticket_design"]["company_font_size"] = company_font_size_var.get()
+            self.settings["ticket_design"]["number_prefix"] = number_prefix_var.get()
+            self.settings["ticket_design"]["number_size"] = ticket_number_size_var.get()
+            self.settings["ticket_design"]["thank_message"] = thank_var.get()
+            self.settings["ticket_design"]["thank_font_size"] = thank_font_size_var.get()
+            self.settings["ticket_design"]["warning_message"] = warning_var.get()
+            self.settings["ticket_design"]["warning_font_size"] = warning_font_size_var.get()
+            self.settings["ticket_design"]["custom_message"] = custom_var.get()
+            self.settings["ticket_design"]["message_font_size"] = custom_font_size_var.get()
+            self.settings["ticket_design"]["show_date"] = show_date_var.get()
+            self.settings["ticket_design"]["show_time"] = show_time_var.get()
+            self.settings["ticket_design"]["watermark"] = show_watermark_var.get()
+            self.settings["ticket_design"]["watermark_text"] = watermark_text_var.get()
+            self.settings["ticket_design"]["watermark_font_size"] = watermark_font_size_var.get()
+            
             # Business rules
             self.settings["business_rules"]["start_number"] = start_var.get()
             self.settings["business_rules"]["auto_increment_after_print"] = auto_var.get()
@@ -3829,9 +4090,17 @@ class PremiumQueueSystem:
             self.settings["business_rules"]["backup_interval"] = backup_interval_var.get()
             
             # Printer settings
+            Config.SERIAL_PORT = port_var.get()
+            Config.BAUD_RATE = baud_var.get()
             self.settings["printer_settings"]["encoding"] = encoding_var.get()
             self.settings["printer_settings"]["paper_width"] = paper_var.get()
             self.settings["printer_settings"]["cut_after_print"] = cut_var.get()
+            self.settings["printer_settings"]["print_quality"] = quality_var.get()
+            self.settings["printer_settings"]["darkness"] = darkness_var.get()
+            self.settings["printer_settings"]["print_speed"] = speed_var.get()
+            self.settings["printer_settings"]["align_center"] = align_center_var.get()
+            self.settings["printer_settings"]["bold_header"] = bold_header_var.get()
+            self.settings["printer_settings"]["double_height"] = double_height_var.get()
             
             # UI Layout
             self.settings["ui_layout"]["design_mode"] = design_mode_var.get()
@@ -3906,6 +4175,24 @@ class PremiumQueueSystem:
                 messagebox.showinfo("Success", "Printer test successful!")
             else:
                 messagebox.showerror("Error", "Printer test failed!")
+        
+        def test_printer_connection():
+            """Test printer connection"""
+            try:
+                ser = serial.Serial(
+                    Config.SERIAL_PORT,
+                    Config.BAUD_RATE,
+                    timeout=2,
+                    bytesize=serial.EIGHTBITS,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE
+                )
+                ser.close()
+                messagebox.showinfo("Success", f"Printer connected successfully on {Config.SERIAL_PORT}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to connect to printer: {str(e)}")
+        
+        self.test_printer_connection = test_printer_connection
         
         # Save button
         save_button = tk.Button(bottom_frame, text="💾 Save Settings", 

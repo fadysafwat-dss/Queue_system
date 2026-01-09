@@ -1,0 +1,22 @@
+# Premium Queue System v6.5.0 - Requirements for Pydroid 3
+# هذا الملف للمستخدمين على Android 5.1+ مع Pydroid 3
+
+# Pydroid 3 يأتي مع معظم المكتبات مثبتة مسبقاً
+# هذه هي المكتبات الإضافية التي نحتاجها
+
+# مكتبة Pillow لمعالجة الصور (قد تكون مثبتة مسبقاً)
+pillow==10.1.0
+
+# مكتبة pyserial للطباعة
+pyserial==3.5
+
+# المكتبات الأخرى تكون مثبتة مسبقاً في Pydroid 3:
+# - tkinter (مدمج مع Python)
+# - json (مدمج مع Python)
+# - datetime (مدمج مع Python)
+# - threading (مدمج مع Python)
+# - logging (مدمج مع Python)
+# - os, sys, time, shutil, atexit, signal (جميعها مدمجة)
+
+# المكتبات الاختيارية (إذا أردت تحسين الوظائف)
+colorama==0.4.6
